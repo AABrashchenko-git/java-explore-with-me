@@ -30,9 +30,9 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<ViewStatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
-        DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateStart = LocalDateTime.parse(start, FORMATTER);
-        LocalDateTime dateEnd = LocalDateTime.parse(end, FORMATTER);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateStart = LocalDateTime.parse(start, formatter);
+        LocalDateTime dateEnd = LocalDateTime.parse(end, formatter);
 
         List<ViewStats> result;
 
