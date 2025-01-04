@@ -2,6 +2,7 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.mapper.EndpointHitMapper;
@@ -21,6 +22,7 @@ public class StatsServiceImpl implements StatsService {
     private final EndpointHitMapper hitMapper;
     private final ViewStatsMapper viewMapper;
 
+    @Transactional
     @Override
     public EndpointHitDto addStats(EndpointHitDto endpointHitDto) {
         return hitMapper.endpointHitToDto(statsRepository.save(hitMapper.hitDtoToEntity(endpointHitDto)));
