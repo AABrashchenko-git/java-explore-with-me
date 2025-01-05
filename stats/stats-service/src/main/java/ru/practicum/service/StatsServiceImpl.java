@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.config.DateTimeFormats.DATE_TIME_PATTERN;
+
 @Service
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
@@ -30,7 +32,7 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<ViewStatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
         LocalDateTime dateStart = LocalDateTime.parse(start, formatter);
         LocalDateTime dateEnd = LocalDateTime.parse(end, formatter);
 
