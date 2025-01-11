@@ -18,7 +18,7 @@ public class PublicEventsController {
 
     @GetMapping
     public List<EventShortDto> getPublicEvents(@RequestParam(required = false) String text,
-                                               @RequestParam(required = false) List<Integer> categories,
+                                               @RequestParam(required = false) List<Long> categories,
                                                @RequestParam(required = false) Boolean paid,
                                                @RequestParam(required = false) String rangeStart,
                                                @RequestParam(required = false) String rangeEnd,
@@ -31,7 +31,7 @@ public class PublicEventsController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getPublicEventById(@PathVariable Integer id) {
+    public EventFullDto getPublicEventById(@PathVariable Long id) {
         log.info("GET /events/{} is accessed", id);
         return eventService.getPublicEventById(id);
     }

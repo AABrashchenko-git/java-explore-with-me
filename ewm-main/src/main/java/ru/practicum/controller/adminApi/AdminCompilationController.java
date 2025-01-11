@@ -17,21 +17,21 @@ public class AdminCompilationController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto addCompilationByAdmin(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         log.info("POST /admin/compilations is accessed: {}", newCompilationDto);
-        return compilationService.addCompilation(newCompilationDto);
+        return compilationService.addCompilationByAdmin(newCompilationDto);
     }
 
     @DeleteMapping("/{compId}")
-    public void deleteCompilation(@PathVariable Integer compId) {
+    public void deleteCompilationByAdmin(@PathVariable Long compId) {
         log.info("DELETE /admin/compilations/{} is accessed", compId);
-        compilationService.deleteCompilation(compId);
+        compilationService.deleteCompilationByAdmin(compId);
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto updateCompilation(@PathVariable Integer compId,
+    public CompilationDto updateCompilationByAdmin(@PathVariable Long compId,
                                             @Valid @RequestBody UpdateCompilationRequest request) {
         log.info("PATCH /admin/compilations/{} is accessed: {}", compId, request);
-        return compilationService.updateCompilation(compId, request);
+        return compilationService.updateCompilationByAdmin(compId, request);
     }
 }

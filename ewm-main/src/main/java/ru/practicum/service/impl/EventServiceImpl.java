@@ -204,7 +204,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                               String rangeEnd, Boolean onlyAvailable, String sort, Long from, Long size) {
+                                               String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
         LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart) : null;
         LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd) : null;
 
@@ -238,7 +238,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getPublicEventById(Long id) {
-return null;
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Event is not found"));
+        if (!event.getState().equals(EventState.PUBLISHED))
+            throw new ConflictException("Event is not published");
+        // TODO увеличить количество просмотров + статистика
+        return eventMapper.toEventFullDto(event);
     }
 
     private void userExistsCheck(Long userId) {

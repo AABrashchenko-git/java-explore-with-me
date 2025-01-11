@@ -8,13 +8,13 @@ import ru.practicum.model.dto.compilation.UpdateCompilationRequest;
 import java.util.List;
 
 public interface CompilationService {
-    List<CompilationDto> getCompilations(Integer from, Integer size, Boolean pinned);
+    List<CompilationDto> getCompilationsPublic(Integer from, Integer size, Boolean pinned);
 
-    List<ViewStatsDto> getCompilationsById(Integer compId);
+    CompilationDto getCompilationsByIdPublic(Long compId);
 
-    CompilationDto addCompilation(NewCompilationDto newCompilationDto);
+    CompilationDto addCompilationByAdmin(NewCompilationDto newCompilationDto);
 
-    void deleteCompilation(Integer compId);
+    void deleteCompilationByAdmin(Long compId);
 
-    CompilationDto updateCompilation(Integer compId, UpdateCompilationRequest request);
+    CompilationDto updateCompilationByAdmin(Long compId, UpdateCompilationRequest request);
 }

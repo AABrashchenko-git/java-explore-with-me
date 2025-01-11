@@ -17,16 +17,16 @@ public class PublicCompilationController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationDto> getCompilations(@RequestParam(defaultValue = "0") Integer from,
+    public List<CompilationDto> getCompilationsPublic(@RequestParam(defaultValue = "0") Integer from,
                                                 @RequestParam(defaultValue = "10") Integer size,
                                                 @RequestParam(required = false) Boolean pinned) {
         log.info("GET /compilations for pinned = {} from {}  to {} is accessed", pinned, from, size);
-        return compilationService.getCompilations(from, size, pinned);
+        return compilationService.getCompilationsPublic(from, size, pinned);
     }
 
     @GetMapping("/{compId}")
-    public List<ViewStatsDto> getCompilationById(@PathVariable Integer compId) {
+    public CompilationDto getCompilationByIdPublic(@PathVariable Long compId) {
         log.info("GET /compilations/{} is accessed", compId);
-        return compilationService.getCompilationsById(compId);
+        return compilationService.getCompilationsByIdPublic(compId);
     }
 }

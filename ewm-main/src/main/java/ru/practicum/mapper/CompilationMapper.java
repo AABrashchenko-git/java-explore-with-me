@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = {EventMapper.class})
 public interface CompilationMapper {
 
-/*    @Mapping(target = "events", source = "events", qualifiedByName = "mapEvents")
-    Compilation toEntity(NewCompilationDto newCompilationDto);*/
+/*    @Mapping(target = "events", source = "events", qualifiedByName = "mapEvents")*/
+    Compilation toEntity(NewCompilationDto newCompilationDto);
 
     CompilationDto toDto(Compilation compilation);
 
