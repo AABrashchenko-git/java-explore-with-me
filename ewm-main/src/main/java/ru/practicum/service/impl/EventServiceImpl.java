@@ -133,7 +133,8 @@ public class EventServiceImpl implements EventService {
         }
 
         // 4 - если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить
-        if (request.getStatus().equals(RequestStatus.CONFIRMED) && (event.getParticipantLimit() - event.getConfirmedRequests()) < (requestsToUpdate.size())) {
+        if (request.getStatus().equals(RequestStatus.CONFIRMED)
+                && (event.getParticipantLimit() - event.getConfirmedRequests()) < (requestsToUpdate.size())) {
             throw new ConflictException("лимит заявок для события исчерпан");
         }
 
@@ -192,8 +193,7 @@ public class EventServiceImpl implements EventService {
                 .and(EventAdminSpecifications.withRangeStart(start))
                 .and(EventAdminSpecifications.withRangeEnd(end));
 
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Pageable pageable = PageRequest.of(from / size, size);
 
         List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 
@@ -225,9 +225,7 @@ public class EventServiceImpl implements EventService {
         } else if ("VIEWS".equals(sort)) {
             sorting = Sort.by(Sort.Direction.DESC, "views");
         }
-
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size, sorting);
+        Pageable pageable = PageRequest.of(from / size, size, sorting);
 
         List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 

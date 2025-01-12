@@ -19,4 +19,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     @EntityGraph(attributePaths = {"category", "initiator", "location"})
     Optional<Event> findEventByIdAndInitiatorId(Long eventId, Long initiatorId);
+
+    List<Event> findAllByIdIn(List<Long> eventsIds);
 }

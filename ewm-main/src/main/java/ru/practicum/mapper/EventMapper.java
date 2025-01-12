@@ -6,7 +6,6 @@ import ru.practicum.model.entity.Event;
 
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class, UserMapper.class})
 public interface EventMapper {
-    //@Mapping(target = "id", ignore = true)
     @Mapping(target = "state", constant = "PENDING")
     @Mapping(target = "createdOn", expression = "java(java.time.LocalDateTime.now())")
     Event toEntity(NewEventDto newEventDto);

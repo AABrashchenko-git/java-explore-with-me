@@ -18,7 +18,7 @@ public class AdminUsersController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers(@RequestParam(required = false) List<Integer> ids,
+    public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
                                   @RequestParam(defaultValue = "0") Integer from,
                                   @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET /admin/users is accessed");
@@ -32,7 +32,7 @@ public class AdminUsersController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@PathVariable Integer userId) {
+    public void deleteUserById(@PathVariable Long userId) {
         log.info("DELETE /admin/users/{} is accessed", userId);
         userService.deleteUserById(userId);
     }
