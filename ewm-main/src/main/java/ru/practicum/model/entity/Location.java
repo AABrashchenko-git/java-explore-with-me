@@ -1,6 +1,7 @@
 package ru.practicum.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -17,6 +18,8 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "location_id")
     private Long id;
+    @NotNull
     private Double lat;
+    @NotNull
     private Double lon;
 }

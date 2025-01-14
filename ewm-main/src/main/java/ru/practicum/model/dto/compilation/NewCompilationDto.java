@@ -1,9 +1,9 @@
 package ru.practicum.model.dto.compilation;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.util.List;
 
 @Data

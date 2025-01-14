@@ -1,13 +1,15 @@
 package ru.practicum.model.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.enums.RequestStatus;
 
 import java.util.List;
 
 @Data
-// запрос: текущий пользователь изменяет статус заявок на участие в событии (подтверждена, отменена)
 public class EventRequestStatusUpdateRequest {
+    @NotNull
     private List<Long> requestIds;
+    @NotNull
     private RequestStatus status;
 }
