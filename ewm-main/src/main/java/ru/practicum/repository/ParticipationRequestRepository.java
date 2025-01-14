@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.model.dto.request.ParticipationRequestDto;
-import ru.practicum.model.entity.Compilation;
 import ru.practicum.model.entity.ParticipationRequest;
 
 import java.util.List;
@@ -26,9 +25,5 @@ public interface ParticipationRequestRepository extends JpaRepository<Participat
     @EntityGraph(attributePaths = {"requester"})
     List<ParticipationRequest> findAllByEventId(Long eventId);
 
-    @Query("SELECT p FROM ParticipationRequest p " +
-            "JOIN FETCH p.event e " +
-            "JOIN FETCH p.requester r " +
-            "WHERE e.initiator.id = :id")
-    Optional<ParticipationRequest> findById(@Param("id") Long id);
+    Optional<ParticipationRequest> findByIdAndRequesterId(Long id, Long requesterId);
 }

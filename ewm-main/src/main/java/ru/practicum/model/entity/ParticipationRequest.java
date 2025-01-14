@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"event", "requester"})
 @EqualsAndHashCode(of = {"id"})
 public class ParticipationRequest {
     @Id

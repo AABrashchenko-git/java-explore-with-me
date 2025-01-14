@@ -21,8 +21,8 @@ public class StatsClient {
     private final RestTemplate rest;
 
     @Autowired
-    public StatsClient(@Value("${ewm.stats.client.url}") String serverUrl) {
-        this.rest = new RestTemplateBuilder().uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+    public StatsClient(@Value("${ewm.stats.client.url}") String serverUrl, RestTemplateBuilder restTemplateBuilder) {
+        this.rest = restTemplateBuilder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
                 .build();
     }

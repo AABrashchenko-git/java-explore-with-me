@@ -1,10 +1,9 @@
 package ru.practicum.mapper;
 
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.Context;
-import org.mapstruct.factory.Mappers;
 import ru.practicum.model.dto.compilation.CompilationDto;
 import ru.practicum.model.dto.compilation.NewCompilationDto;
 import ru.practicum.model.dto.event.EventShortDto;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {EventMapper.class})
 public interface CompilationMapper {
+    @Mapping(target = "events", ignore = true)
     Compilation toEntity(NewCompilationDto newCompilationDto);
 
     @Mapping(source = "events", target = "events", qualifiedByName = "mapEventsToShortDto")

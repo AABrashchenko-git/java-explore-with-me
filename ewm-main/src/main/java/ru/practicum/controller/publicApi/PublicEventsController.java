@@ -1,5 +1,6 @@
 package ru.practicum.controller.publicApi;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +26,16 @@ public class PublicEventsController {
                                                @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                                @RequestParam(required = false) String sort,
                                                @RequestParam(defaultValue = "0") Integer from,
-                                               @RequestParam(defaultValue = "10") Integer size) {
+                                               @RequestParam(defaultValue = "10") Integer size,
+                                               HttpServletRequest request) {
         log.info("GET /events is accessed");
-        return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return eventService.getPublicEvents(text, categories, paid,
+                rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getPublicEventById(@PathVariable Long id) {
+    public EventFullDto getPublicEventById(@PathVariable Long id, HttpServletRequest request) {
         log.info("GET /events/{} is accessed", id);
-        return eventService.getPublicEventById(id);
+        return eventService.getPublicEventById(id, request);
     }
 }

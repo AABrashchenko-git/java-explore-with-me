@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -31,6 +29,7 @@ public class GlobalExceptionHandler {
                 .message("Validation failed")
                 .reason("Incorrectly made request.")
                 .status(HttpStatus.BAD_REQUEST)
+                .timestamp(LocalDateTime.now())
                 .build();
 
         log.warn("Validation failure: {}", errors);
@@ -44,6 +43,7 @@ public class GlobalExceptionHandler {
                 .message("Validation failed")
                 .reason("Incorrectly made request.")
                 .status(HttpStatus.BAD_REQUEST)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -55,6 +55,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("The required object was not found.")
                 .status(HttpStatus.NOT_FOUND)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
@@ -66,8 +67,21 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("For the requested operation the conditions are not met.")
                 .status(HttpStatus.CONFLICT)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TimestampViolationException.class)
+    public ResponseEntity<ApiError> handleTimestampViolationException(TimestampViolationException ex) {
+        ApiError apiError = ApiError.builder()
+                .errors(List.of(ex.toString()))
+                .message(ex.getMessage())
+                .reason("For the requested operation the conditions are not met.")
+                .status(HttpStatus.BAD_REQUEST)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -77,6 +91,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("Incorrectly made request.")
                 .status(HttpStatus.BAD_REQUEST)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -88,6 +103,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("For the requested operation the conditions are not met.")
                 .status(HttpStatus.FORBIDDEN)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
@@ -98,9 +114,10 @@ public class GlobalExceptionHandler {
                 .errors(List.of(ex.toString()))
                 .message(ex.getMessage())
                 .reason("For the requested operation the conditions are not met.")
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.NOT_FOUND)
+                .timestamp(LocalDateTime.now())
                 .build();
-        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ParticipantLimitExceededException.class)
@@ -110,6 +127,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("The participant limit has been reached.")
                 .status(HttpStatus.CONFLICT)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
@@ -121,9 +139,9 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("Internal server error.")
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
 }

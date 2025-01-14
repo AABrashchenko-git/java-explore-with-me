@@ -1,6 +1,6 @@
 package ru.practicum.service;
 
-import ru.practicum.dto.ViewStatsDto;
+import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.model.dto.event.*;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateResult;
@@ -28,7 +28,8 @@ public interface EventService {
                                         String rangeStart, String rangeEnd, Integer from, Integer size);
 
     List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                        String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size);
+                                        String rangeEnd, Boolean onlyAvailable, String sort, Integer from,
+                                        Integer size, HttpServletRequest request);
 
-    EventFullDto getPublicEventById(Long id);
+    EventFullDto getPublicEventById(Long id, HttpServletRequest request);
 }

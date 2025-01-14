@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addNewUser(NewUserRequest newUserRequest) {
-        if(userRepository.existsByEmail(newUserRequest.getEmail()))
+        if (userRepository.existsByEmail(newUserRequest.getEmail()))
             throw new ConflictException("user already exists");
         User newUser = userMapper.newUserRequestToUser(newUserRequest);
         return userMapper.userToUserDto(userRepository.save(newUser));
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(Long userId) {
-        if(!userRepository.existsById(userId))
+        if (!userRepository.existsById(userId))
             throw new NotFoundException("user is not found");
         userRepository.deleteById(userId);
     }

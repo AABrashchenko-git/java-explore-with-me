@@ -9,6 +9,8 @@ import ru.practicum.model.entity.ParticipationRequest;
 public interface RequestMapper {
 
     @Mapping(target = "created", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "event", ignore = true)
+    @Mapping(target = "requester", ignore = true)
     ParticipationRequest toEntity(ParticipationRequestDto participationRequestDto);
 
     @Mapping(source = "event.id", target = "event")

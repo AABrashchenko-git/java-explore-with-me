@@ -13,7 +13,6 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode(of = {"id"})
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")

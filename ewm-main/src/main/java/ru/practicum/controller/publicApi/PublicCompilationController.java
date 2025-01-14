@@ -3,7 +3,6 @@ package ru.practicum.controller.publicApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.model.dto.compilation.CompilationDto;
 import ru.practicum.service.CompilationService;
 
@@ -18,8 +17,8 @@ public class PublicCompilationController {
 
     @GetMapping
     public List<CompilationDto> getCompilationsPublic(@RequestParam(defaultValue = "0") Integer from,
-                                                @RequestParam(defaultValue = "10") Integer size,
-                                                @RequestParam(required = false) Boolean pinned) {
+                                                      @RequestParam(defaultValue = "10") Integer size,
+                                                      @RequestParam(required = false, defaultValue = "false") Boolean pinned) {
         log.info("GET /compilations for pinned = {} from {}  to {} is accessed", pinned, from, size);
         return compilationService.getCompilationsPublic(from, size, pinned);
     }

@@ -28,18 +28,18 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RequestMapper requestMapper;
+
     @Override
     @Transactional
     public ParticipationRequestDto cancelParticipationRequest(Long userId, Long requestId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User is not found"));
-        ParticipationRequest request = requestRepository.findById(requestId)
+        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException("Request is not found"));
 
         Event event = request.getEvent();
         request.setStatus(RequestStatus.CANCELED);
-        event.setConfirmedRequests(event.getConfirmedRequests()-1);
-
+        event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         return requestMapper.toDto(requestRepository.save(request));
     }
 
@@ -52,23 +52,24 @@ public class RequestServiceImpl implements RequestService {
         List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
         boolean isUserRequesterAlready = requests.stream()
                 .map(r -> r.getRequester().getId()).anyMatch(id -> id.equals(userId));
-        if(isUserRequesterAlready)
+        if (isUserRequesterAlready)
             throw new ConflictException("нельзя добавить повторный запрос");
-        if(event.getInitiator().getId().equals(userId))
+        if (event.getInitiator().getId().equals(userId))
             throw new ConflictException("инициатор события не может добавить запрос на участие в своём событии");
-        if(!event.getState().equals(EventState.PUBLISHED))
+        if (!event.getState().equals(EventState.PUBLISHED))
             throw new ConflictException("нельзя участвовать в неопубликованном событии");
-        if(event.getParticipantLimit().equals(event.getConfirmedRequests()))
+        if ((event.getParticipantLimit() != 0) && event.getParticipantLimit().equals(event.getConfirmedRequests()))
             throw new ConflictException("у события достигнут лимит запросов на участие");
         ParticipationRequest newRequest = ParticipationRequest.builder()
                 .created(LocalDateTime.now())
                 .event(event)
                 .requester(user).build();
 
-        if(!event.getRequestModeration()) {
-            newRequest.toBuilder().status(RequestStatus.CONFIRMED);
+        if (!event.getRequestModeration() || (event.getParticipantLimit() == 0)) {
+            newRequest = newRequest.toBuilder().status(RequestStatus.CONFIRMED).build();
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         } else {
-            newRequest.toBuilder().status(RequestStatus.PENDING);
+            newRequest = newRequest.toBuilder().status(RequestStatus.PENDING).build();
         }
         return requestMapper.toDto(requestRepository.save(newRequest));
     }

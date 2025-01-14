@@ -17,6 +17,7 @@ import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.service.CompilationService;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +30,12 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final CompilationMapper compilationMapper;
     private final EventMapper eventMapper;
+
     @Override
     public List<CompilationDto> getCompilationsPublic(Integer from, Integer size, Boolean pinned) {
-        //pinned == false by default
         Pageable pageable = PageRequest.of(from / size, size);
-        //PageRequest(from, size, Sort.by(Sort.Direction.ASC, "id"));?
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
+
         return compilations.stream()
                 .map(c -> compilationMapper.toDto(c, eventMapper))
                 .collect(Collectors.toList());
@@ -43,7 +44,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationsByIdPublic(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(()-> new NotFoundException("compilation is not found"));
+                .orElseThrow(() -> new NotFoundException("compilation is not found"));
         return compilationMapper.toDto(compilation, eventMapper);
     }
 
@@ -51,19 +52,25 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto addCompilationByAdmin(NewCompilationDto newCompilationDto) {
         List<Long> eventsIds = newCompilationDto.getEvents();
-        List<Event> events = eventRepository.findAllByIdIn(eventsIds);
+        List<Event> events = new ArrayList<>();
+        if (newCompilationDto.getEvents() != null) {
+            events = eventRepository.findAllByIdIn(eventsIds);
+        }
+
         Compilation compilation = Compilation.builder()
                 .title(newCompilationDto.getTitle())
                 .pinned(newCompilationDto.getPinned())
                 .events(new HashSet<>(events)).build();
-        return compilationMapper.toDto(compilationRepository.save(compilation), eventMapper);
+        Compilation savedCompilation = compilationRepository.save(compilation);
+
+        return compilationMapper.toDto(savedCompilation, eventMapper);
     }
 
     @Override
     @Transactional
     public void deleteCompilationByAdmin(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(()-> new NotFoundException("compilation is not found"));
+                .orElseThrow(() -> new NotFoundException("compilation is not found"));
         compilationRepository.delete(compilation);
     }
 
@@ -71,13 +78,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto updateCompilationByAdmin(Long compId, UpdateCompilationRequest request) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(()-> new NotFoundException("compilation is not found"));
+                .orElseThrow(() -> new NotFoundException("compilation is not found"));
         List<Event> events = eventRepository.findAllByIdIn(request.getEvents());
-        if(request.getTitle() != null)
+        if (request.getTitle() != null)
             compilation.setTitle(request.getTitle());
-        if(request.getPinned() != null)
+        if (request.getPinned() != null)
             compilation.setPinned(request.getPinned());
-        if(request.getEvents() != null)
+        if (request.getEvents() != null)
             compilation.setEvents(new HashSet<>(events));
         return compilationMapper.toDto(compilation, eventMapper);
     }

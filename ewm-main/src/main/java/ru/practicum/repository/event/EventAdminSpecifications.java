@@ -1,7 +1,8 @@
 package ru.practicum.repository.event;
+
 import org.springframework.data.jpa.domain.Specification;
-import ru.practicum.model.entity.Event;
 import ru.practicum.enums.EventState;
+import ru.practicum.model.entity.Event;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

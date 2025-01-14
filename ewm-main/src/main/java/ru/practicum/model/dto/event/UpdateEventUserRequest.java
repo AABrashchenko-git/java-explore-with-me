@@ -1,11 +1,15 @@
 package ru.practicum.model.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.practicum.enums.UserStateAction;
-import ru.practicum.model.entity.Location;
+import ru.practicum.model.dto.location.LocationDto;
 
 import java.time.LocalDateTime;
+
+import static ru.practicum.config.DateTimeFormats.DATE_TIME_PATTERN;
 
 @Data
 public class UpdateEventUserRequest {
@@ -14,8 +18,10 @@ public class UpdateEventUserRequest {
     private Long category;
     @Size(min = 20, max = 7000)
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN)
+    @Future
     private LocalDateTime eventDate;
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;

@@ -7,13 +7,15 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
-@Getter
-@Builder(toBuilder = true)
 @Entity
 @Table(name = "stats")
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = {"id"})
 public class EndpointHit {
     @Id
     @Column(name = "stats_id")

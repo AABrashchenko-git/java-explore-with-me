@@ -3,6 +3,7 @@ package ru.practicum.controller.privateApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.event.EventFullDto;
 import ru.practicum.model.dto.event.EventShortDto;
@@ -31,6 +32,7 @@ public class PrivateEventsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto addPrivateUserEvent(@PathVariable Long userId,
                                             @RequestBody @Valid NewEventDto newEventDto) {
         log.info("POST /users/{}/events : {} is accessed", userId, newEventDto);
@@ -52,7 +54,7 @@ public class PrivateEventsController {
 
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getPrivateUserParticipationRequest(@PathVariable Long userId,
-                                                                      @PathVariable Long eventId) {
+                                                                            @PathVariable Long eventId) {
         log.info("GET /users/{}/events/{}/requests is accessed", userId, eventId);
         return eventService.getPrivateUserParticipationRequest(userId, eventId);
     }
