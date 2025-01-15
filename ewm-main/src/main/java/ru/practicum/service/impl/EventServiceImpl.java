@@ -102,7 +102,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventIfExists(userId, eventId);
         cheeckIfUserIsInitiator(userId, event);
 
-        if (!event.getState().equals(EventState.PENDING) && !event.getState().equals(EventState.CANCELED))
+        if (!EventState.PENDING.equals(event.getState()) && !EventState.CANCELED.equals(event.getState()))
             throw new ConflictException("изменить можно только отмененные события или в состоянии ожидания модерации");
 
         eventMapper.updateEventFromDtoByUser(request, event);
