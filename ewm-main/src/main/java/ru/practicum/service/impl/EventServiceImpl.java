@@ -20,12 +20,13 @@ import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.LocationMapper;
 import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.dto.event.*;
+import ru.practicum.model.dto.location.ExtendedLocationDto;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.model.dto.request.ParticipationRequestDto;
 import ru.practicum.model.entity.*;
 import ru.practicum.repository.CategoryRepository;
-import ru.practicum.repository.LocationRepository;
+import ru.practicum.repository.location.LocationRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 import ru.practicum.repository.event.EventAdminSpecifications;
@@ -73,8 +74,15 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("user is not Found"));
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(() -> new NotFoundException("category is not found"));
-        Location location = locationMapper.dtoToLocation(newEventDto.getLocation());
+
+        Location location;
+        if (newEventDto.getLocation() instanceof ExtendedLocationDto extendedLocation) {
+            location = locationMapper.extendedDtoToLocation(extendedLocation);
+        } else {
+            location = locationMapper.dtoToLocation(newEventDto.getLocation());
+        }
         location = locationRepository.save(location);
+
         Event eventToSave = eventMapper.toEntity(newEventDto);
         eventToSave.setInitiator(user);
         eventToSave.setCategory(category);
