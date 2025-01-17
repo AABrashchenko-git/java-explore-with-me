@@ -126,7 +126,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<ShortLocationDto> getAllLocationsPublic(String name, Double lat, Double lon, Double radius,
-                                                        Integer from, Integer size) {
+                                                        Integer from, Integer size) { //TODO пользователи получают только доступные локации
         log.info("получение локаций public: name={}, lat={}, lon={}, radius={}, from={}, size={}",
                 name, lat, lon, radius, from, size);
 
