@@ -17,19 +17,9 @@ import java.util.List;
 public class PrivateLocationController {
     private final LocationService locationService;
 
-    @GetMapping("/{id}/events")
-    public List<EventFullDto> getEventsByLocationIdPrivate(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) Boolean onlyAvailable) {
-        log.info("GET /private/locations/{}/events is accessed", id);
-        return locationService.getEventsByLocationIdPrivate(id, from, size, onlyAvailable);
-    }
-
     @GetMapping("/user/{userId}/favorites")
     public List<ShortLocationDto> getFavoriteLocationsPrivate(
-            @RequestParam Long userId,
+            @PathVariable Long userId,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET /private/locations/favorites is accessed for user {}", userId);
@@ -37,16 +27,15 @@ public class PrivateLocationController {
     }
 
     @PostMapping("/user/{userId}/favorites/favorites/{locationId}")
-    public ShortLocationDto addFavoriteLocationPrivate(@RequestParam Long userId, @PathVariable Long locationId) {
+    public ShortLocationDto addFavoriteLocationPrivate(@PathVariable Long userId, @PathVariable Long locationId) {
         log.info("POST /private/locations/favorites/{} is accessed for user {}", locationId, userId);
         return locationService.addFavoriteLocationPrivate(userId, locationId);
     }
 
     @DeleteMapping("/user/{userId}/favorites/favorites/{locationId}")
-    public ShortLocationDto removeFavoriteLocationPrivate(@PathVariable Long userId, @RequestParam Long locationId) {
+    public void removeFavoriteLocationPrivate(@PathVariable Long userId, @PathVariable Long locationId) {
         log.info("DELETE /private/locations/favorites/{} is accessed for user {}", locationId, userId);
-        return locationService.removeFavoriteLocationPrivate(userId, locationId);
+        locationService.removeFavoriteLocationPrivate(userId, locationId);
     }
-
 
 }

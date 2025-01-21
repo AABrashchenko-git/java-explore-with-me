@@ -8,6 +8,7 @@ import ru.practicum.model.dto.event.EventFullDto;
 import ru.practicum.model.dto.event.UpdateEventAdminRequest;
 import ru.practicum.model.dto.location.LocationDto;
 import ru.practicum.model.dto.location.LocationFullDto;
+import ru.practicum.model.dto.location.ShortLocationDto;
 import ru.practicum.model.dto.location.UpdateLocationAdminRequest;
 import ru.practicum.service.EventService;
 import ru.practicum.service.LocationService;
@@ -41,22 +42,13 @@ public class AdminLocationController {
         return locationService.updateLocationByAdmin(locationId, request);
     }
 
-    @GetMapping("/{locationId}")
-    public LocationFullDto getOneLocationByAdmin(@PathVariable Long locationId) {
-        log.info("GET /admin/locations/{} is accessed", locationId);
-        return locationService.getOneLocationByAdmin(locationId);
-    }
-
     @GetMapping
-    public List<LocationFullDto> getLocationsByAdmin(
+    public List<ShortLocationDto> findLocationsByAdmin(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Double lat,
-            @RequestParam(required = false) Double lon,
-            @RequestParam(required = false) Double radius,
-            @RequestParam(required = false) Boolean available,
+            @RequestParam(defaultValue = "false") Boolean available,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET /admin/locations is accessed");
-        return locationService.getLocationsByAdmin(name, radius, lat, lon, available, from, size);
+        return locationService.findLocationsByAdmin(name, available, from, size);
     }
 }

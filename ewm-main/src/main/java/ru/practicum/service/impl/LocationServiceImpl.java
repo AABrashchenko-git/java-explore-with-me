@@ -8,18 +8,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.enums.EventState;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.LocationMapper;
-import ru.practicum.model.dto.event.EventFullDto;
+import ru.practicum.model.dto.event.EventShortDto;
 import ru.practicum.model.dto.location.*;
 import ru.practicum.model.entity.Event;
+import ru.practicum.model.entity.FavoriteLocation;
 import ru.practicum.model.entity.Location;
-import ru.practicum.repository.location.LocationRepository;
+import ru.practicum.repository.UserRepository;
 import ru.practicum.repository.event.EventRepository;
+import ru.practicum.repository.location.FavoriteLocationRepository;
+import ru.practicum.repository.location.LocationRepository;
 import ru.practicum.service.LocationService;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,8 @@ import java.util.stream.Collectors;
 public class LocationServiceImpl implements LocationService {
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
+    private final FavoriteLocationRepository favoriteLocationRepository;
+    private final UserRepository userRepository;
     private final LocationMapper locationMapper;
     private final EventMapper eventMapper;
 
@@ -43,8 +49,7 @@ public class LocationServiceImpl implements LocationService {
         } else {
             location = locationMapper.dtoToLocation(request);
         }
-
-       // location.setAvailable(true); // По умолчанию локация доступна?
+        location.setAvailable(true);
         Location savedLocation = locationRepository.save(location);
         return locationMapper.toLocationFullDto(savedLocation);
     }
@@ -53,8 +58,7 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     public void deleteLocationByAdmin(Long locationId) {
         log.info("удааление локации админом, Id: {}", locationId);
-        if (!locationRepository.existsById(locationId))
-            throw new NotFoundException("Location not found with ID: " + locationId);
+        locationExistsCheck(locationId);
         locationRepository.deleteById(locationId);
     }
 
@@ -79,66 +83,40 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public LocationFullDto getOneLocationByAdmin(Long locationId) {
-        log.info("получение одной локации админом, id локации: {}", locationId);
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new NotFoundException("Location not found with ID: " + locationId));
-        return locationMapper.toLocationFullDto(location);
-    }
-
-    @Override
-    public List<LocationFullDto> getLocationsByAdmin(String name, Double lat, Double lon, Double radius,
-                                                     Boolean available, Integer from, Integer size) {
-        log.info("получение админом локаций с фильтрами: name={}, lat={}, lon={}, radius={}, available={}, from={}, size={}",
-                name, lat, lon, radius, available, from, size);
+    public List<ShortLocationDto> findLocationsByAdmin(String name, Boolean available, Integer from, Integer size) {
+        log.info("получение админом локаций с : name={}, available={}, from={}, size={}", name, available, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
         Specification<Location> spec = Specification.where(null);
 
-        if (name != null) {
+        if (name != null && !name.isBlank())
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-        }
-        if (lat != null && lon != null && radius != null) {
-            // Логика фильтрации по радиусу??
-        }
-        if (available != null) {
+        if (available != null)
             spec = spec.and((root, query, cb) -> cb.equal(root.get("available"), available));
-        }
 
         Page<Location> locations = locationRepository.findAll(spec, pageable);
         return locations.stream()
-                .map(locationMapper::toLocationFullDto)
+                .map(locationMapper::toShortLocationDto)
                 .collect(Collectors.toList());
     }
 
-
-
-    ///////////////////////////////////////////////
-    //////////////////////////////////////////////
-
     @Override
-    public ShortLocationDto getLocationByIdPublic(Long id) {
+    public LocationFullDto getLocationByIdPublic(Long id) {
         log.info("получение локаций по id: {}", id);
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Location not found with ID: " + id));
-        return locationMapper.toShortLocationDto(location);
+        return locationMapper.toLocationFullDto(location);
     }
 
     @Override
-    public List<ShortLocationDto> getAllLocationsPublic(String name, Double lat, Double lon, Double radius,
-                                                        Integer from, Integer size) { //TODO пользователи получают только доступные локации
-        log.info("получение локаций public: name={}, lat={}, lon={}, radius={}, from={}, size={}",
-                name, lat, lon, radius, from, size);
+    public List<ShortLocationDto> findLocationsPublic(String name, Integer from, Integer size) {
+        log.info("получение локаций public: name={}, from={}, size={}", name, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
-        Specification<Location> spec = Specification.where((root, query, cb) -> cb.isTrue(root.get("available"))); // Только доступные локации
+        Specification<Location> spec = Specification.where((root, query, cb) -> cb.isTrue(root.get("available")));
 
-        if (name != null) {
+        if (name != null && !name.isBlank())
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-        }
-        if (lat != null && lon != null && radius != null) {
-            //что с радиусом? нативные запросы, функция?
-        }
 
         Page<Location> locations = locationRepository.findAll(spec, pageable);
         return locations.stream()
@@ -146,45 +124,38 @@ public class LocationServiceImpl implements LocationService {
                 .collect(Collectors.toList());
     }
 
-
-
-
-    ///////////////////////////////////////////////
-    //////////////////////////////////////////////
-
-
-
     @Override
-    public List<EventFullDto> getEventsByLocationIdPrivate(Long id, Integer from, Integer size, Boolean onlyAvailable) {
+    public List<EventShortDto> getEventsByLocationIdPublic(Long id, Integer from, Integer size, Boolean onlyAvailable) {
         log.info("получение событий для локации: {} с параметрами: from={}, size={}, onlyAvailable={}", id, from, size, onlyAvailable);
+
+        locationExistsCheck(id);
 
         Pageable pageable = PageRequest.of(from / size, size);
         Specification<Event> spec = Specification.where((root, query, cb) -> cb.equal(root.get("location").get("id"), id));
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("state"), EventState.PUBLISHED));
 
-       /* if (onlyAvailable != null && onlyAvailable) {
+        if (onlyAvailable != null && onlyAvailable)
             spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("participantLimit"), root.get("confirmedRequests")));
-        }*/ // убрать мб?
 
         Page<Event> events = eventRepository.findAll(spec, pageable);
         return events.stream()
-                .map(eventMapper::toEventFullDto)
+                .map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ShortLocationDto> getFavoriteLocationsPrivate(Long userId, Integer from, Integer size) {
-        log.info("получение избранных локаций для юзера с ID: {} с фильтрами: from={}, size={}", userId, from, size);
-
+    public List<EventShortDto> getEventsByCoordinatesPublic(Double lat, Double lon, Double radius, Integer from,
+                                                            Integer size, Boolean onlyAvailable) {
         Pageable pageable = PageRequest.of(from / size, size);
-
-        List<Long> favoriteLocationIds = locationRepository.getFavoriteLocationIdsForUser(userId);
-        if (favoriteLocationIds.isEmpty()) {
-            return Collections.emptyList();
+        Page<Event> events;
+        if (onlyAvailable) {
+            events = eventRepository.findAvailableEventsByCoordinates(lat, lon, radius, pageable);
+        } else {
+            events = eventRepository.findEventsByCoordinates(lat, lon, radius, pageable);
         }
 
-        Page<Location> locations = locationRepository.findAllByIdIn(favoriteLocationIds, pageable);
-        return locations.stream()
-                .map(locationMapper::toShortLocationDto)
+        return events.stream()
+                .map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
     }
 
@@ -192,24 +163,52 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     public ShortLocationDto addFavoriteLocationPrivate(Long userId, Long locationId) {
         log.info("добавление локации в избранное: {} для пользователя: {}", locationId, userId);
-
+        userExistsCheck(userId);
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new NotFoundException("Location not found with ID: " + locationId));
+        if (favoriteLocationRepository.existsByUserIdAndLocationId(userId, locationId))
+            throw new ConflictException("Location is already in favorites");
 
-        locationRepository.addLocationToUserFavorites(userId, locationId);
+        FavoriteLocation favorite = FavoriteLocation.builder()
+                .userId(userId)
+                .locationId(locationId)
+                .build();
+        favoriteLocationRepository.save(favorite);
         return locationMapper.toShortLocationDto(location);
     }
 
     @Override
+    public List<ShortLocationDto> getFavoriteLocationsPrivate(Long userId, Integer from, Integer size) {
+        log.info("получение избранных локаций для юзера с ID: {} с фильтрами: from={}, size={}", userId, from, size);
+        userExistsCheck(userId);
+
+        Pageable pageable = PageRequest.of(from / size, size);
+
+        Page<Location> locations = locationRepository.findFavoriteLocationsByUserId(userId, pageable);
+        return locations.stream()
+                .map(locationMapper::toShortLocationDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
-    public ShortLocationDto removeFavoriteLocationPrivate(Long userId, Long locationId) {
+    public void removeFavoriteLocationPrivate(Long userId, Long locationId) {
         log.info("удалене локации с ид: {} из избранного для пользователя ID: {}", locationId, userId);
+        userExistsCheck(userId);
+        locationExistsCheck(locationId);
+        if (!favoriteLocationRepository.existsByUserIdAndLocationId(userId, locationId))
+            throw new NotFoundException("Location not found in favorites");
+        favoriteLocationRepository.deleteByUserIdAndLocationId(userId, locationId);
+    }
 
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new NotFoundException("Location not found with ID: " + locationId));
+    private void userExistsCheck(Long userId) {
+        if (!userRepository.existsById(userId))
+            throw new NotFoundException("user is not Found");
+    }
 
-        locationRepository.removeLocationFromUserFavorites(userId, locationId);
-        return locationMapper.toShortLocationDto(location);
+    private void locationExistsCheck(Long locationId) {
+        if (!locationRepository.existsById(locationId))
+            throw new NotFoundException("location is not Found");
     }
 
 }

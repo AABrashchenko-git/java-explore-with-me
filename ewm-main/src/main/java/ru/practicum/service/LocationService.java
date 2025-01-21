@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 import ru.practicum.model.dto.event.EventFullDto;
+import ru.practicum.model.dto.event.EventShortDto;
 import ru.practicum.model.dto.location.LocationDto;
 import ru.practicum.model.dto.location.LocationFullDto;
 import ru.practicum.model.dto.location.ShortLocationDto;
@@ -15,20 +16,20 @@ public interface LocationService {
 
     LocationFullDto updateLocationByAdmin(Long locationId, UpdateLocationAdminRequest request);
 
-    LocationFullDto getOneLocationByAdmin(Long locationId);
+    List<ShortLocationDto> findLocationsByAdmin(String name, Boolean available, Integer from, Integer size);
 
-    List<LocationFullDto> getLocationsByAdmin(String name, Double lat, Double lon, Double radius,
-                                              Boolean available, Integer from, Integer size);
+    LocationFullDto getLocationByIdPublic(Long id);
 
-    ShortLocationDto getLocationByIdPublic(Long id);
+    List<ShortLocationDto> findLocationsPublic(String name, Integer from, Integer size);
 
-    List<ShortLocationDto> getAllLocationsPublic(String name, Double lat, Double lon, Double radius, Integer from, Integer size);
-
-    List<EventFullDto> getEventsByLocationIdPrivate(Long id, Integer from, Integer size, Boolean onlyAvailable);
+    List<EventShortDto> getEventsByLocationIdPublic(Long id, Integer from, Integer size, Boolean onlyAvailable);
 
     List<ShortLocationDto> getFavoriteLocationsPrivate(Long userId, Integer from, Integer size);
 
     ShortLocationDto addFavoriteLocationPrivate(Long userId, Long locationId);
 
-    ShortLocationDto removeFavoriteLocationPrivate(Long userId, Long locationId);
+    void removeFavoriteLocationPrivate(Long userId, Long locationId);
+
+    List<EventShortDto> getEventsByCoordinatesPublic(Double lat, Double lon, Double radius, Integer from, Integer size,
+                                                     Boolean onlyAvailableEvents);
 }
