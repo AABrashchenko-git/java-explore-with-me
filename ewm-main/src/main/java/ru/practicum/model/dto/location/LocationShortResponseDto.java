@@ -1,14 +1,16 @@
 package ru.practicum.model.dto.location;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import ru.practicum.utils.NotBlankIfPresent;
 
-public class LocationFullDto {
+@Data
+public class LocationShortResponseDto {
     private Long id;
     @NotBlankIfPresent
     private String name;
-    @Positive
-    private Double radius;
+    @NotNull
     private Double lat;
+    @NotNull
     private Double lon;
 }

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.event.EventShortDto;
-import ru.practicum.model.dto.location.LocationFullDto;
-import ru.practicum.model.dto.location.ShortLocationDto;
+import ru.practicum.model.dto.location.LocationFullResponseDto;
+import ru.practicum.model.dto.location.LocationShortResponseDto;
 import ru.practicum.service.LocationService;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class PublicLocationController {
     private final LocationService locationService;
 
     @GetMapping
-    public List<ShortLocationDto> findLocationsPublic(
+    public List<LocationShortResponseDto> findLocationsPublic(
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -27,7 +27,7 @@ public class PublicLocationController {
     }
 
     @GetMapping("/{locationId}")
-    public LocationFullDto getLocationByIdPublic(@PathVariable Long locationId) {
+    public LocationFullResponseDto getLocationByIdPublic(@PathVariable Long locationId) {
         log.info("GET /public/locations/{} is accessed", locationId);
         return locationService.getLocationByIdPublic(locationId);
     }

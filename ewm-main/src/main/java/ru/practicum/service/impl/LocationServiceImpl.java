@@ -41,17 +41,31 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @Transactional
-    public LocationFullDto addLocationByAdmin(LocationDto request) {
+    public LocationFullResponseDto addLocationByAdmin(LocationDto request) {
         log.info("добавление локации админом: {}", request);
+
+        if (request instanceof ExtendedLocationDto extendedLocation) {
+            log.info("добавление локации админом: name={}, available={}, lat={}, lon={}",
+                    extendedLocation.getName(), extendedLocation.getAvailable(),
+                    extendedLocation.getLat(), extendedLocation.getLon());
+        } else {
+            log.info("добавление локации админом: lat={}, lon={}", request.getLat(), request.getLon());
+        }
+
+
+
+
+
+
         Location location;
         if (request instanceof ExtendedLocationDto extendedLocation) {
             location = locationMapper.extendedDtoToLocation(extendedLocation);
         } else {
             location = locationMapper.dtoToLocation(request);
         }
-        location.setAvailable(true);
+     //   location.setAvailable(true);
         Location savedLocation = locationRepository.save(location);
-        return locationMapper.toLocationFullDto(savedLocation);
+        return locationMapper.toLocationFullResponseDto(savedLocation);
     }
 
     @Override
@@ -64,7 +78,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @Transactional
-    public LocationFullDto updateLocationByAdmin(Long locationId, UpdateLocationAdminRequest request) {
+    public LocationFullResponseDto updateLocationByAdmin(Long locationId, UpdateLocationAdminRequest request) {
         log.info("обновление локации админом с id = {}, body {}", locationId, request);
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new NotFoundException("Location not found with ID: " + locationId));
@@ -79,11 +93,11 @@ public class LocationServiceImpl implements LocationService {
             location.setAvailable(request.getAvailable());
 
         Location updatedLocation = locationRepository.save(location);
-        return locationMapper.toLocationFullDto(updatedLocation);
+        return locationMapper.toLocationFullResponseDto(updatedLocation);
     }
 
     @Override
-    public List<ShortLocationDto> findLocationsByAdmin(String name, Boolean available, Integer from, Integer size) {
+    public List<LocationShortResponseDto> findLocationsByAdmin(String name, Boolean available, Integer from, Integer size) {
         log.info("получение админом локаций с : name={}, available={}, from={}, size={}", name, available, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
@@ -96,20 +110,20 @@ public class LocationServiceImpl implements LocationService {
 
         Page<Location> locations = locationRepository.findAll(spec, pageable);
         return locations.stream()
-                .map(locationMapper::toShortLocationDto)
+                .map(locationMapper::toLocationShortResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public LocationFullDto getLocationByIdPublic(Long id) {
+    public LocationFullResponseDto getLocationByIdPublic(Long id) {
         log.info("получение локаций по id: {}", id);
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Location not found with ID: " + id));
-        return locationMapper.toLocationFullDto(location);
+        return locationMapper.toLocationFullResponseDto(location);
     }
 
     @Override
-    public List<ShortLocationDto> findLocationsPublic(String name, Integer from, Integer size) {
+    public List<LocationShortResponseDto> findLocationsPublic(String name, Integer from, Integer size) {
         log.info("получение локаций public: name={}, from={}, size={}", name, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
@@ -120,7 +134,7 @@ public class LocationServiceImpl implements LocationService {
 
         Page<Location> locations = locationRepository.findAll(spec, pageable);
         return locations.stream()
-                .map(locationMapper::toShortLocationDto)
+                .map(locationMapper::toLocationShortResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -161,7 +175,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @Transactional
-    public ShortLocationDto addFavoriteLocationPrivate(Long userId, Long locationId) {
+    public LocationShortResponseDto addFavoriteLocationPrivate(Long userId, Long locationId) {
         log.info("добавление локации в избранное: {} для пользователя: {}", locationId, userId);
         userExistsCheck(userId);
         Location location = locationRepository.findById(locationId)
@@ -174,11 +188,11 @@ public class LocationServiceImpl implements LocationService {
                 .locationId(locationId)
                 .build();
         favoriteLocationRepository.save(favorite);
-        return locationMapper.toShortLocationDto(location);
+        return locationMapper.toLocationShortResponseDto(location);
     }
 
     @Override
-    public List<ShortLocationDto> getFavoriteLocationsPrivate(Long userId, Integer from, Integer size) {
+    public List<LocationShortResponseDto> getFavoriteLocationsPrivate(Long userId, Integer from, Integer size) {
         log.info("получение избранных локаций для юзера с ID: {} с фильтрами: from={}, size={}", userId, from, size);
         userExistsCheck(userId);
 
@@ -186,7 +200,7 @@ public class LocationServiceImpl implements LocationService {
 
         Page<Location> locations = locationRepository.findFavoriteLocationsByUserId(userId, pageable);
         return locations.stream()
-                .map(locationMapper::toShortLocationDto)
+                .map(locationMapper::toLocationShortResponseDto)
                 .collect(Collectors.toList());
     }
 

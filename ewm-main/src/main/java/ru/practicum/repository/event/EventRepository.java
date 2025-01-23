@@ -22,13 +22,21 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     boolean existsByCategoryId(Long catId);
 
-    @Query(value = "SELECT * FROM events e WHERE distance(:lat, :lon, e.lat, e.lon) <= :radius AND e.state = 'PUBLISHED' " +
-            "AND (e.participantLimit = 0 OR e.participantLimit > e.confirmedRequests)", nativeQuery = true)
+    @Query(value = "SELECT e.* FROM events e " +
+            "JOIN location l ON e.location_id = l.location_id " +
+            "WHERE distance(:lat, :lon, l.lat, l.lon) <= :radius " +
+            "AND e.state = 'PUBLISHED' " +
+            "AND (e.participant_limit = 0 OR e.participant_limit > e.confirmed_requests)",
+            nativeQuery = true)
     Page<Event> findEventsByCoordinates(@Param("lat") Double lat, @Param("lon") Double lon,
-                                     @Param("radius") Double radius, Pageable pageable);
-
-    @Query(value = "SELECT * FROM events e WHERE distance(:lat, :lon, e.lat, e.lon) <= :radius AND e.state = 'PUBLISHED'", nativeQuery = true)
-    Page<Event> findAvailableEventsByCoordinates(@Param("lat") Double lat, @Param("lon") Double lon,
                                         @Param("radius") Double radius, Pageable pageable);
+
+    @Query(value = "SELECT e.* FROM events e " +
+            "JOIN location l ON e.location_id = l.location_id " +
+            "WHERE distance(:lat, :lon, l.lat, l.lon) <= :radius " +
+            "AND e.state = 'PUBLISHED'",
+            nativeQuery = true)
+    Page<Event> findAvailableEventsByCoordinates(@Param("lat") Double lat, @Param("lon") Double lon,
+                                                 @Param("radius") Double radius, Pageable pageable);
 
 }

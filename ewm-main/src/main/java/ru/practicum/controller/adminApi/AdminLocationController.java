@@ -3,12 +3,13 @@ package ru.practicum.controller.adminApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.dto.event.EventFullDto;
 import ru.practicum.model.dto.event.UpdateEventAdminRequest;
 import ru.practicum.model.dto.location.LocationDto;
-import ru.practicum.model.dto.location.LocationFullDto;
-import ru.practicum.model.dto.location.ShortLocationDto;
+import ru.practicum.model.dto.location.LocationFullResponseDto;
+import ru.practicum.model.dto.location.LocationShortResponseDto;
 import ru.practicum.model.dto.location.UpdateLocationAdminRequest;
 import ru.practicum.service.EventService;
 import ru.practicum.service.LocationService;
@@ -23,12 +24,13 @@ public class AdminLocationController {
     private final LocationService locationService;
 
     @PostMapping
-    public LocationFullDto addLocationByAdmin(@Valid @RequestBody LocationDto request) {
+    public LocationFullResponseDto addLocationByAdmin(@Valid @RequestBody LocationDto request) {
         log.info("POST /admin/locations is accessed: {}", request);
         return locationService.addLocationByAdmin(request);
     }
 
     @DeleteMapping("/{locationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLocationByAdmin(@PathVariable Long locationId) {
         log.info("DELETE /admin/events/{} is accessed", locationId);
         locationService.deleteLocationByAdmin(locationId);
@@ -36,14 +38,14 @@ public class AdminLocationController {
 
 
     @PatchMapping("/{locationId}")
-    public LocationFullDto updateLocationByAdmin(@PathVariable Long locationId,
+    public LocationFullResponseDto updateLocationByAdmin(@PathVariable Long locationId,
                                                  @Valid @RequestBody UpdateLocationAdminRequest request) {
         log.info("PATCH /admin/locations/{} is accessed: {}", locationId, request);
         return locationService.updateLocationByAdmin(locationId, request);
     }
 
     @GetMapping
-    public List<ShortLocationDto> findLocationsByAdmin(
+    public List<LocationShortResponseDto> findLocationsByAdmin(
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "false") Boolean available,
             @RequestParam(defaultValue = "0") Integer from,
