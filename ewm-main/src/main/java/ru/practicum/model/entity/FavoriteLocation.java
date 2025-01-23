@@ -3,10 +3,9 @@ package ru.practicum.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.practicum.utils.NotBlankIfPresent;
 
 @Entity
-@Table(name = "location")
+@Table(name = "favorite_locations")
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,16 +13,14 @@ import ru.practicum.utils.NotBlankIfPresent;
 @Setter
 @ToString
 @EqualsAndHashCode(of = {"id"})
-public class Location {
+public class FavoriteLocation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "location_id")
     private Long id;
     @NotNull
-    private Double lat;
+    @Column(name = "user_id")
+    private Long userId;
     @NotNull
-    private Double lon;
-    @NotBlankIfPresent
-    private String name;
-    private Boolean available;
+    @Column(name = "location_id")
+    private Long locationId;
 }

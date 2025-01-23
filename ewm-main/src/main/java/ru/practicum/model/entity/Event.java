@@ -57,7 +57,7 @@ public class Event {
     @JoinColumn(name = "initiator_id")
     @NotNull
     private User initiator;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     @NotNull
     private Location location;

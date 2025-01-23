@@ -12,5 +12,5 @@ public interface UserMapper {
 
     UserDto userToUserDto(User user);
 
-    UserShortDto userToUserShortDto(User user); // для EventFullDto
+    UserShortDto userToUserShortDto(User user);
 }
