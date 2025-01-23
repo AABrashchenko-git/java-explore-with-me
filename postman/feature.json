@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0ed2a99e-a3f6-4ebb-abbe-4979bab086d1",
+		"_postman_id": "e096b490-dd0c-49ed-9c1e-fab2bc289fe1",
 		"name": "Explore With Me - locations",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "37541570"
@@ -1219,14 +1219,14 @@
 									"const randomEmail = `testuser${Date.now()}@example.com`;",
 									"",
 									"const generateRandomCoordinates = () => {",
-									"    const lat = (Math.random() * 180 - 90).toFixed(5);",
-									"    const lon = (Math.random() * 360 - 180).toFixed(5);",
+									"    const lat = (Math.random() * 180 - 90).toFixed(7);",
+									"    const lon = (Math.random() * 360 - 180).toFixed(7);",
 									"    return { lat: parseFloat(lat), lon: parseFloat(lon) };",
 									"};",
 									"",
 									"const generateOffset = (value, maxOffset) => {",
 									"    const offset = (Math.random() * 2 - 1) * maxOffset;",
-									"    return parseFloat((parseFloat(value) + offset).toFixed(5));",
+									"    return parseFloat((parseFloat(value) + offset).toFixed(7));",
 									"};",
 									"",
 									"const createUser = async () => {",
@@ -1253,11 +1253,11 @@
 									"const createLocation = async () => {",
 									"    return new Promise((resolve, reject) => {",
 									"        // локация создается с координатами, немного отличающимися от координат из строки запроса, для проверки работы функция поиска distance(?, ?, l.lat, l.lon) в БД",
-									"        // 0.09 градуса  - около 6-10 километров (для долготы и широты), в строке запроса радиус в километрах, если я правильно понял",
-									"        // поэтому при маленьких значениях радиуса radius <7 выборка пустая, если больше - события попадают в выборку",
+									"        // 0.05 градуса  - очень усредненно около пяти километров, в строке запроса радиус в километрах, если я правильно понял",
+									"        // поэтому в параметрах запроса радиус ставлю 10 км, чтобы событие создавалось всегда в пределах радиуса оффсета локации",
 									"        const coordinates = generateRandomCoordinates();",
-									"        const latWithOffset = generateOffset(coordinates.lat, 0.09);",
-									"        const lonWithOffset = generateOffset(coordinates.lon, 0.09);",
+									"        const latWithOffset = generateOffset(coordinates.lat, 0.05);",
+									"        const lonWithOffset = generateOffset(coordinates.lon, 0.05);",
 									"",
 									"        pm.environment.set(\"locationLat\", coordinates.lat);",
 									"        pm.environment.set(\"locationLon\", coordinates.lon);",
@@ -1459,7 +1459,9 @@
 									"    const jsonData = pm.response.json();",
 									"    const firstEventAnnotation = jsonData[0].annotation;",
 									"    pm.expect(firstEventAnnotation).to.eql('Аннотация тестового события в доступном радиусе');",
-									"});"
+									"});",
+									"",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
