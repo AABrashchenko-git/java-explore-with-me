@@ -1,12 +1,13 @@
 package ru.practicum.model.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Data;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import ru.practicum.model.dto.location.LocationDto;
+import lombok.Data;
+import ru.practicum.utils.LocationDtoDeserializer;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +26,8 @@ public class NewEventDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN)
     private LocalDateTime eventDate;
     @NotNull
-    private LocationDto location;
+    @JsonDeserialize(using = LocationDtoDeserializer.class)
+    private Object location;
     private Boolean paid = false;
     @PositiveOrZero
     private Integer participantLimit = 0;

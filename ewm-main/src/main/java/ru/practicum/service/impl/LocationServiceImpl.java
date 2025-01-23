@@ -14,7 +14,10 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.LocationMapper;
 import ru.practicum.model.dto.event.EventShortDto;
-import ru.practicum.model.dto.location.*;
+import ru.practicum.model.dto.location.LocationFullResponseDto;
+import ru.practicum.model.dto.location.LocationShortResponseDto;
+import ru.practicum.model.dto.location.NewAdminLocationDto;
+import ru.practicum.model.dto.location.UpdateLocationAdminRequest;
 import ru.practicum.model.entity.Event;
 import ru.practicum.model.entity.FavoriteLocation;
 import ru.practicum.model.entity.Location;
@@ -41,29 +44,9 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @Transactional
-    public LocationFullResponseDto addLocationByAdmin(LocationDto request) {
+    public LocationFullResponseDto addLocationByAdmin(NewAdminLocationDto request) {
         log.info("добавление локации админом: {}", request);
-
-        if (request instanceof ExtendedLocationDto extendedLocation) {
-            log.info("добавление локации админом: name={}, available={}, lat={}, lon={}",
-                    extendedLocation.getName(), extendedLocation.getAvailable(),
-                    extendedLocation.getLat(), extendedLocation.getLon());
-        } else {
-            log.info("добавление локации админом: lat={}, lon={}", request.getLat(), request.getLon());
-        }
-
-
-
-
-
-
-        Location location;
-        if (request instanceof ExtendedLocationDto extendedLocation) {
-            location = locationMapper.extendedDtoToLocation(extendedLocation);
-        } else {
-            location = locationMapper.dtoToLocation(request);
-        }
-     //   location.setAvailable(true);
+        Location location = locationMapper.adminDtoToLocation(request);
         Location savedLocation = locationRepository.save(location);
         return locationMapper.toLocationFullResponseDto(savedLocation);
     }
@@ -97,16 +80,16 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public List<LocationShortResponseDto> findLocationsByAdmin(String name, Boolean available, Integer from, Integer size) {
-        log.info("получение админом локаций с : name={}, available={}, from={}, size={}", name, available, from, size);
+    public List<LocationShortResponseDto> findLocationsByAdmin(String name, Boolean onlyAvailable, Integer from, Integer size) {
+        log.info("получение админом локаций с : name={}, available={}, from={}, size={}", name, onlyAvailable, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
         Specification<Location> spec = Specification.where(null);
 
         if (name != null && !name.isBlank())
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-        if (available != null)
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("available"), available));
+        if (onlyAvailable)
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("available"), true));
 
         Page<Location> locations = locationRepository.findAll(spec, pageable);
         return locations.stream()

@@ -76,10 +76,10 @@ CREATE OR REPLACE FUNCTION distance(lat1 float, lon1 float, lat2 float, lon2 flo
 AS
 '
     DECLARE
-        dist float = 0;
-        rad_lat1 float;
-        rad_lat2 float;
-        theta float;
+        dist      float = 0;
+        rad_lat1  float;
+        rad_lat2  float;
+        theta     float;
         rad_theta float;
     BEGIN
         IF lat1 = lat2 AND lon1 = lon2 THEN

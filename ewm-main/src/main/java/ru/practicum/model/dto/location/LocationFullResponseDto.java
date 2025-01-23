@@ -1,14 +1,15 @@
 package ru.practicum.model.dto.location;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import ru.practicum.utils.NotBlankIfPresent;
 
 @Data
 public class LocationFullResponseDto {
     private Long id;
-    @NotBlankIfPresent
+    @NotBlank
     private String name;
+    @NotNull
     private Boolean available;
     @NotNull
     private Double lat;

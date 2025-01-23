@@ -5,7 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ExtendedLocationDto extends LocationDto {
+public class NewAdminLocationDto {
+    private Long id;
+    @NotNull
+    private Double lat;
+    @NotNull
+    private Double lon;
     @NotBlank
     private String name;
     @NotNull

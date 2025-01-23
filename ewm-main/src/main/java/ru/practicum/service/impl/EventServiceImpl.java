@@ -20,18 +20,18 @@ import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.LocationMapper;
 import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.dto.event.*;
-import ru.practicum.model.dto.location.ExtendedLocationDto;
+import ru.practicum.model.dto.location.LocationDto;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.model.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.model.dto.request.ParticipationRequestDto;
 import ru.practicum.model.entity.*;
 import ru.practicum.repository.CategoryRepository;
-import ru.practicum.repository.location.LocationRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 import ru.practicum.repository.event.EventAdminSpecifications;
 import ru.practicum.repository.event.EventPublicSpecifications;
 import ru.practicum.repository.event.EventRepository;
+import ru.practicum.repository.location.LocationRepository;
 import ru.practicum.service.EventService;
 
 import java.time.LocalDateTime;
@@ -76,12 +76,16 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("category is not found"));
 
         Location location;
-        if (newEventDto.getLocation() instanceof ExtendedLocationDto extendedLocation) {
-            location = locationMapper.extendedDtoToLocation(extendedLocation);
+        Object locationInput = newEventDto.getLocation();
+
+        if (locationInput instanceof Long locationId) {
+            location = locationRepository.findById(locationId)
+                    .orElseThrow(() -> new NotFoundException("Location not found with id = " + locationId));
         } else {
-            location = locationMapper.dtoToLocation(newEventDto.getLocation());
+            LocationDto locationDto = (LocationDto) locationInput;
+            location = locationMapper.dtoToLocation(locationDto);
+            location = locationRepository.save(location);
         }
-        location = locationRepository.save(location);
 
         Event eventToSave = eventMapper.toEntity(newEventDto);
         eventToSave.setInitiator(user);
@@ -114,6 +118,12 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("изменить можно только отмененные события или в состоянии ожидания модерации");
 
         eventMapper.updateEventFromDtoByUser(request, event);
+
+        if (request.getLocation() != null) {
+            Location location = event.getLocation();
+            location.setLat(request.getLocation().getLat());
+            location.setLon(request.getLocation().getLon());
+        }
 
         if (request.getStateAction() != null) {
             if (request.getStateAction().equals(UserStateAction.SEND_TO_REVIEW)) {
@@ -192,6 +202,7 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("событие можно публиковать, только если оно в состоянии ожидания публикации");
             }
             event.setState(EventState.PUBLISHED);
+            event.setPublishedOn(LocalDateTime.now());
         }
         if ((request.getStateAction() != null) && request.getStateAction().equals(AdminStateAction.REJECT_EVENT)) {
             if (event.getState().equals(EventState.PUBLISHED))
@@ -200,6 +211,12 @@ public class EventServiceImpl implements EventService {
             event.setState(EventState.CANCELED);
         }
         eventMapper.updateEventFromDtoByAdmin(request, event);
+        if (request.getLocation() != null) {
+            Location location = event.getLocation();
+            location.setLat(request.getLocation().getLat());
+            location.setLon(request.getLocation().getLon());
+        }
+
         return eventMapper.toEventFullDto(event);
     }
 

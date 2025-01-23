@@ -1,16 +1,15 @@
 package ru.practicum.service;
 
-import ru.practicum.model.dto.event.EventFullDto;
 import ru.practicum.model.dto.event.EventShortDto;
-import ru.practicum.model.dto.location.LocationDto;
 import ru.practicum.model.dto.location.LocationFullResponseDto;
 import ru.practicum.model.dto.location.LocationShortResponseDto;
+import ru.practicum.model.dto.location.NewAdminLocationDto;
 import ru.practicum.model.dto.location.UpdateLocationAdminRequest;
 
 import java.util.List;
 
 public interface LocationService {
-    LocationFullResponseDto addLocationByAdmin(LocationDto request);
+    LocationFullResponseDto addLocationByAdmin(NewAdminLocationDto request);
 
     void deleteLocationByAdmin(Long locationId);
 
